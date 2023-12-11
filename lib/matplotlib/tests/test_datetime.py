@@ -743,8 +743,33 @@ class TestDatetimePlotting:
     @pytest.mark.xfail(reason="Test for tripcolor not written yet")
     @mpl.style.context("default")
     def test_tripcolor(self):
-        fig, ax = plt.subplots()
-        ax.tripcolor(...)
+        mpl.rcParams["date.converter"] = 'concise'
+
+        # Generate dates
+        start_date = datetime.datetime(2023, 1, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(10)]
+        date_nums = mpl.dates.date2num(dates)
+        # Create triangular grid
+        x = np.random.rand(10)
+        y = np.random.rand(10)
+        z = np.random.rand(10)
+        triangles = tri.Triangulation(x, y).triangles
+
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+
+        # Standard tripcolor plot
+        ax1.tripcolor(x, y, triangles, z, shading='flat')
+        ax1.set_title('Standard Tripcolor Plot')
+
+        # Tripcolor with datetime on x-axis
+        ax2.tripcolor(date_nums, y, triangles, z, shading='flat')
+        ax2.set_xticks(date_nums)
+        ax2.set_xticklabels([d.strftime('%Y-%m-%d') for d in dates], rotation=45)
+
+        # Tripcolor with datetime on y-axis
+        ax3.tripcolor(x, date_nums, triangles, z, shading='flat')
+        ax3.set_yticks(date_nums)
+        ax3.set_yticklabels([d.strftime('%Y-%m-%d') for d in dates])
 
     @pytest.mark.xfail(reason="Test for triplot not written yet")
     @mpl.style.context("default")
@@ -758,11 +783,24 @@ class TestDatetimePlotting:
         fig, ax = plt.subplots()
         ax.violin(...)
 
-    @pytest.mark.xfail(reason="Test for violinplot not written yet")
     @mpl.style.context("default")
     def test_violinplot(self):
-        fig, ax = plt.subplots()
-        ax.violinplot(...)
+        mpl.rcParams["date.converter"] = 'concise'
+        # Generate dates
+        start_date = datetime.datetime(2023, 1, 1)
+        dates = [start_date + datetime.timedelta(days=i) for i in range(30)]
+        # Generate data
+        data = [np.random.normal(loc=i, scale=1, size=100) for i in range(30)]
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, constrained_layout=True)
+        # Datetime on x-axis
+        ax1.violinplot(data)
+        ax1.set_xticks(range(1, len(dates) + 1))
+        ax1.set_xticklabels([d.strftime('%Y-%m-%d') for d in dates], rotation=45)
+
+        # Datetime on y-axis
+        ax2.violinplot(data, vert=False)
+        ax2.set_yticks(range(1, len(dates) + 1))
+        ax2.set_yticklabels([d.strftime('%Y-%m-%d') for d in dates])
 
     @mpl.style.context("default")
     def test_vlines(self):
